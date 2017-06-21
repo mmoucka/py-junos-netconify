@@ -72,11 +72,20 @@ class tty_netconf(object):
         structure for further processing
         """
         action = kvargs.get('action', 'override')
-        cmd = E('load-configuration', dict(format='text', action=action),
-                E('configuration-text', content)
-                )
-        rsp = self.rpc(etree.tostring(cmd))
-        return rsp if rsp.findtext('.//ok') is None else True
+        config_format = kvargs.get('format', '')
+        if config_format == 'set':
+            action = 'set'
+            cmd = E('load-configuration', dict(format='text', action=action),
+                    E('configuration-set', content)
+                    )
+            rsp = self.rpc(etree.tostring(cmd))
+            return True if rsp.text is None else rsp
+        else:
+            cmd = E('load-configuration', dict(format='text', action=action),
+                    E('configuration-text', content)
+                    )
+            rsp = self.rpc(etree.tostring(cmd))
+            return rsp if rsp.findtext('.//ok') is None else True
 
     def commit_check(self):
         """

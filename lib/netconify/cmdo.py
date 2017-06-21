@@ -452,7 +452,10 @@ class netconifyCmdo(object):
 
         self._notify('conf', 'loading into device ...')
         content = open(self._args.junos_conf_file, 'r').read()
-        load_args = dict(content=content)
+        if re.search('\.set$', self._args.junos_conf_file):
+            load_args = dict(content=content, format='set')
+        else:
+            load_args = dict(content=content)
         if self._args.junos_merge_conf is True:
             load_args['action'] = 'replace'  # merge/replace; yeah, I know ...
         rc = self._tty.nc.load(**load_args)
